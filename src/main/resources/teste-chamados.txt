@@ -1,0 +1,20 @@
+// Traz todos os camados
+curl http://localhost:8080/api/chamados
+
+// Traz um camado especifico
+curl http://localhost:8080/api/chamados/1
+
+// Testa o erro 404
+curl http://localhost:8080/api/chamados/0
+
+// Criar um chamado - POST
+curl -X POST http://localhost:8080/api/chamados -H "Content-Type: application/json" -d "{\"titulo\":\"Computador sem acesso à rede\",\"descricao\":\"A estação não consegue acessar os recursos internos.\",\"status\":\"ABERTO\",\"prioridade\":\"ALTA\",\"solicitante\":\"João Silva\",\"tecnicoResponsavel\":\"Carlos Oliveira\"}"
+
+// Atualizar um chamado - PUT
+curl -X PUT http://localhost:8080/api/chamados/51 -H "Content-Type: application/json" -d "{\"titulo\":\"Computador sem acesso à rede\",\"descricao\":\"Problema resolvido parcialmente. A estação ainda apresenta instabilidade.\",\"status\":\"EM_ANDAMENTO\",\"prioridade\":\"ALTA\",\"solicitante\":\"João Silva\",\"tecnicoResponsavel\":\"Carlos Oliveira\"}"
+
+// Deleta um chamado
+curl -X DELETE http://localhost:8080/api/chamados/51
+
+// Testa validação
+curl -X POST http://localhost:8080/api/chamados -H "Content-Type: application/json" -d "{\"titulo\":\"\",\"descricao\":\"\",\"status\":null,\"prioridade\":null,\"solicitante\":\"\",\"tecnicoResponsavel\":\"\"}"
