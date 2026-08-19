@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -35,21 +36,33 @@ public class ChamadoServiceTest {
 
     @Test
     void deveListarTodosOsChamados() {
+        // Arrange
         Chamado chamado1 = new Chamado();
         chamado1.setId(1L);
-
-
+        chamado1.setTitulo("Computador não liga");
         Chamado chamado2 = new Chamado();
         chamado2.setId(2L);
+        chamado2.setTitulo("Impressora não scannea");
+        Chamado chamado3 = new Chamado();
+        chamado3.setId(3L);
+        chamado3.setTitulo("Pasta de rede sem acesso");
 
-        // Arrange
-        when(chamadoRepository.findAll()).thenReturn(List.of(chamado1, chamado2));
+        when(chamadoRepository.findAll()).thenReturn(List.of(chamado1, chamado2, chamado3));
 
         // Act
         List<ChamadoResponse> resultado = chamadoService.listarTodos();
 
         // Assert
-        assertEquals(2, resultado.size());
+        assertNotNull(resultado);
+        assertEquals(3, resultado.size());
+        assertEquals(1L, resultado.get(0).id());
+        assertEquals("Computador não liga", resultado.get(0).titulo());
+
+        assertEquals(2L, resultado.get(1).id());
+        assertEquals("Impressora não scannea", resultado.get(1).titulo());
+
+        assertEquals(3L, resultado.get(2).id());
+        assertEquals("Pasta de rede sem acesso", resultado.get(2).titulo());
         verify(chamadoRepository).findAll();
     }
 
@@ -133,7 +146,14 @@ public class ChamadoServiceTest {
 
     @Test
     void deveAtualizarChamado() {
+
         Chamado chamadoExistente = new Chamado();
+        LocalDateTime dataAberturaOriginal = LocalDateTime.of(2026, 8, 10, 10, 0);
+        chamadoExistente.setDataAbertura(dataAberturaOriginal);
+
+        LocalDateTime dataAtualizacaoAnterior = LocalDateTime.of(2026, 8, 10, 11, 0);
+        chamadoExistente.setDataAtualizacao(dataAtualizacaoAnterior);
+
         chamadoExistente.setId(1L);
         chamadoExistente.setTitulo("Computador não liga");
 
@@ -154,14 +174,22 @@ public class ChamadoServiceTest {
 
         assertEquals("Computador não da Vídeo", resultado.titulo());
         assertEquals(StatusChamado.EM_ATENDIMENTO, resultado.status());
+        assertEquals(dataAberturaOriginal, resultado.dataAbertura());
+        assertNotEquals(dataAtualizacaoAnterior, resultado.dataAtualizacao());
         assertNotNull(resultado.dataAtualizacao());
 
         verify(chamadoRepository).findById(1L);
         verify(chamadoRepository).save(chamadoExistente);
     }
 
+
     @Test
-    void deveExcluirChamados(){
+    void deveLancarExcecaoAoAtualizarChamadoInexistente(){
+        when(chamadoRepository.findById(777L));
+    }
+
+    @Test
+    void deveExcluirChamados() {
         Chamado chamado = new Chamado();
         chamado.setId(1L);
         when(chamadoRepository.findById(1L)).thenReturn(java.util.Optional.of(chamado));
@@ -173,7 +201,7 @@ public class ChamadoServiceTest {
     }
 
     @Test
-    void naoDeveExcluirChamadosInexistentes(){
+    void naoDeveExcluirChamadosInexistentes() {
         when(chamadoRepository.findById(777L)).thenReturn(java.util.Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> chamadoService.excluir(777L));
         verify(chamadoRepository).findById(777L);
