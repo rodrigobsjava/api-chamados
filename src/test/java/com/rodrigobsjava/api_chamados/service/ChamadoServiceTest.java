@@ -16,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -84,7 +85,7 @@ public class ChamadoServiceTest {
 
     @Test
     void deveLancarExcecaoQuandoChamadoNaoExistir() {
-        when(chamadoRepository.findById(777L)).thenReturn(java.util.Optional.empty());
+        when(chamadoRepository.findById(777L)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> chamadoService.buscarPorId(777L));
         verify(chamadoRepository).findById(777L);
     }
@@ -185,14 +186,28 @@ public class ChamadoServiceTest {
 
     @Test
     void deveLancarExcecaoAoAtualizarChamadoInexistente(){
-        when(chamadoRepository.findById(777L));
+        when(chamadoRepository.findById(777L)).thenReturn(Optional.empty());
+
+        ChamadoRequest request = new ChamadoRequest(
+                "Computador não liga",
+                "Computador do setor administrativo não liga",
+                StatusChamado.EM_ATENDIMENTO,
+                PrioridadeChamado.ALTA,
+                "Jose Silva",
+                "Carlos Oliveira"
+        );
+
+        assertThrows(ResourceNotFoundException.class, () -> chamadoService.atualizar(777L, request));
+
+        verify(chamadoRepository).findById(777L);
+        verify(chamadoRepository, never()).save(any(Chamado.class));
     }
 
     @Test
     void deveExcluirChamados() {
         Chamado chamado = new Chamado();
         chamado.setId(1L);
-        when(chamadoRepository.findById(1L)).thenReturn(java.util.Optional.of(chamado));
+        when(chamadoRepository.findById(1L)).thenReturn(Optional.of(chamado));
 
         chamadoService.excluir(1L);
 
@@ -201,8 +216,8 @@ public class ChamadoServiceTest {
     }
 
     @Test
-    void naoDeveExcluirChamadosInexistentes() {
-        when(chamadoRepository.findById(777L)).thenReturn(java.util.Optional.empty());
+    void deveLancarExcecaoAoExcluirChamadoInexistente() {
+        when(chamadoRepository.findById(777L)).thenReturn(Optional.empty());
         assertThrows(ResourceNotFoundException.class, () -> chamadoService.excluir(777L));
         verify(chamadoRepository).findById(777L);
         verify(chamadoRepository, never()).delete(any(Chamado.class));
