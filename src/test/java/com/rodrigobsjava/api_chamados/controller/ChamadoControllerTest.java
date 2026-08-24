@@ -26,7 +26,7 @@ public class ChamadoControllerTest {
     @MockitoBean
     private ChamadoService chamadoService;
 
-    ///api/chamados
+    //  GET /api/chamados
     @Test
     void deveListarTodosOsChamados() throws Exception {
         ChamadoResponse chamado = new ChamadoResponse(1L,
@@ -51,8 +51,29 @@ public class ChamadoControllerTest {
         verify(chamadoService).listarTodos();
     }
 
+    //  GET /api/chamados/1
     @Test
     void deveBuscaChamadoPorId() throws Exception {
+        ChamadoResponse chamado = new ChamadoResponse(1L,
+                "Computador não liga",
+                "Computador do setor administrativo não liga",
+                StatusChamado.ABERTO,
+                PrioridadeChamado.ALTA,
+                "José Silva",
+                "Carlos Oliveira",
+                LocalDateTime.of(2026, 8, 24, 10, 0),
+                LocalDateTime.of(2026, 8, 24, 10, 0)
+        );
+        when(chamadoService.buscarPorId(1L)).thenReturn(chamado);
 
+        mockMvc.perform(get("/api/chamados/1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.titulo").value("Computador não liga"))
+                .andExpect(jsonPath("$.descricao").value("Computador do setor administrativo não liga"))
+                .andExpect(jsonPath("$.status").value("ABERTO"))
+                .andExpect(jsonPath("$.prioridade").value("ALTA"));
+
+        verify(chamadoService).buscarPorId(1L);
     }
 }
