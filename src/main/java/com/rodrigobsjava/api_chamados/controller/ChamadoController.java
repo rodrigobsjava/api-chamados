@@ -2,7 +2,6 @@ package com.rodrigobsjava.api_chamados.controller;
 
 import com.rodrigobsjava.api_chamados.dto.ChamadoRequest;
 import com.rodrigobsjava.api_chamados.dto.ChamadoResponse;
-import com.rodrigobsjava.api_chamados.entity.Chamado;
 import com.rodrigobsjava.api_chamados.services.ChamadoService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
